@@ -1,0 +1,71 @@
+```powershell
+# PublishOutbound.ps1
+#
+# Moves PDF files from the internal Windows file share
+# to the CompleteFTP outbound folder.
+
+$Source      = "\\review-dc1\MSOfficeFiles\ur_medx_out"
+$Destination = "C:\FTPRoot\medx_ur\ur_out"
+$LogFile     = "C:\medx_ur_automation\Logs\PublishOutbound.log"
+
+
+# ------------------------------------------------------------
+# Logging function
+# ------------------------------------------------------------
+function Write-Log {
+
+    param (
+        [string]$Message
+    )
+
+    $TimeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
+    $LogEntry = "$TimeStamp  $Message"
+
+    # Display on screen
+    Write-Host $LogEntry
+
+    # Write to log file
+    Add-Content -LiteralPath $LogFile -Value $LogEntry
+}
+
+
+Write-Log "PublishOutbound started."
+
+
+# Find all PDF files
+$Files = Get-ChildItem -LiteralPath $Source -Filter "*.pdf" -File
+
+
+if ($Files.Count -eq 0) {
+
+    Write-Log "No PDF files found."
+
+}
+
+
+foreach ($File in $Files) {
+
+    try {
+
+        Write-Log "Moving $($File.Name)"
+
+        Move-Item `
+            -LiteralPath $File.FullName `
+            -Destination $Destination `
+            -ErrorAction Stop
+
+        Write-Log "SUCCESS: Moved $($File.Name) to CompleteFTP ur_out."
+
+    }
+    catch {
+
+        Write-Log "ERROR moving $($File.Name): $($_.Exception.Message)"
+
+    }
+
+}
+
+
+Write-Log "PublishOutbound finished."
+```
