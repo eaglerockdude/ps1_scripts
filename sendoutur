@@ -1,0 +1,21 @@
+# PublishOutbound.ps1
+#
+# Moves PDF files from the internal Windows file share
+# to the CompleteFTP outbound folder.
+
+$Source      = "\\review-dc1\MSOfficeFiles\ur_medx_out"
+$Destination = "C:\FTPRoot\medx_ur\ur_out"
+
+# Find all PDF files in the source folder
+$Files = Get-ChildItem -LiteralPath $Source -Filter "*.pdf" -File
+
+foreach ($File in $Files) {
+
+    Write-Host "Moving $($File.Name)"
+
+    Move-Item `
+        -LiteralPath $File.FullName `
+        -Destination $Destination
+
+    Write-Host "Moved $($File.Name) to CompleteFTP ur_out"
+}
