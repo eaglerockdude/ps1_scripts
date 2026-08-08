@@ -1,0 +1,100 @@
+```powershell
+# ProcessInbound.ps1
+#
+# Finds matching CSV and ZIP files received through CompleteFTP
+# and moves them to the internal Windows file server.
+
+$Source      = "C:\FTPRoot\medx_ur\ur_in"
+$Destination = "\\review-dc1\MSOfficeFiles\ur_medx_in"
+$LogFile     = "C:\medx_ur_automation\Logs\ProcessInbound.log"
+
+
+# ------------------------------------------------------------
+# Logging function
+# ------------------------------------------------------------
+function Write-Log {
+
+    param (
+        [string]$Message
+    )
+
+    $TimeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
+    $LogEntry = "$TimeStamp  $Message"
+
+    # Display on screen
+    Write-Host $LogEntry
+
+    # Write to log file
+    Add-Content -LiteralPath $LogFile -Value $LogEntry
+}
+
+
+Write-Log "ProcessInbound started."
+
+
+# Find all CSV files
+$CsvFiles = Get-ChildItem -LiteralPath $Source -Filter "*.csv" -File
+
+
+if ($CsvFiles.Count -eq 0) {
+
+    Write-Log "No CSV files found."
+
+}
+
+
+foreach ($CsvFile in $CsvFiles) {
+
+    $BatchName = $CsvFile.BaseName
+
+    # Expected matching ZIP filename
+    $ZipFile = Join-Path $Source "$BatchName.zip"
+
+
+    if (Test-Path -LiteralPath $ZipFile) {
+
+        Write-Log "Matching batch found: $BatchName"
+
+        try {
+
+            Write-Log "Moving $($CsvFile.Name)"
+
+            Move-Item `
+                -LiteralPath $CsvFile.FullName `
+                -Destination $Destination `
+                -ErrorAction Stop
+
+            Write-Log "SUCCESS: Moved $($CsvFile.Name)"
+
+
+            Write-Log "Moving $BatchName.zip"
+
+            Move-Item `
+                -LiteralPath $ZipFile `
+                -Destination $Destination `
+                -ErrorAction Stop
+
+            Write-Log "SUCCESS: Moved $BatchName.zip"
+
+            Write-Log "Batch $BatchName completed."
+
+        }
+        catch {
+
+            Write-Log "ERROR processing batch $BatchName : $($_.Exception.Message)"
+
+        }
+
+    }
+    else {
+
+        Write-Log "WAITING: $($CsvFile.Name) does not have matching $BatchName.zip"
+
+    }
+
+}
+
+
+Write-Log "ProcessInbound finished."
+```
