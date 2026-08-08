@@ -1,0 +1,22 @@
+# ProcessInbound.ps1
+#
+# Moves CSV and ZIP files received through CompleteFTP
+# to the internal Windows file server.
+
+$Source      = "C:\FTPRoot\medx_ur\ur_in"
+$Destination = "\\review-dc1\MSOfficeFiles\ur_medx_in"
+
+# Find CSV and ZIP files
+$Files = Get-ChildItem -LiteralPath $Source -File |
+    Where-Object { $_.Extension -in ".csv", ".zip" }
+
+foreach ($File in $Files) {
+
+    Write-Host "Moving $($File.Name)"
+
+    Move-Item `
+        -LiteralPath $File.FullName `
+        -Destination $Destination
+
+    Write-Host "Moved $($File.Name) to ur_medx_in"
+}
