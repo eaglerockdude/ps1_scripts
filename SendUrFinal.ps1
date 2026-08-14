@@ -5,11 +5,11 @@
 # ur O: drive folder is Allstate_ur_out
 # CompleteFTP server destination folders:
 #   FTPRoot\medx_ur\ur_final_rpt (live)
-#   C:\Users\kmcfadden\projects\allstate\ur_final_rpt
+# Log directory: C:\Logs\medx_ur
 
 $Source      = "\\review-dc1\MSOfficeFiles\Allstate_ur_final_out_tst"
-$Destination = "C:\Users\kmcfadden\projects\allstate\ur_final_rpt"
-$LogDirectory = "C:\Users\kmcfadden\projects\allstate\urlog"
+$Destination = "C:\FTPRoot\medx_ur\ur_final_rpt"
+$LogDirectory = "C:\Logs\medx_ur\"
 $LogFile     = Join-Path $LogDirectory "SendUrFinal.log"
 
 if (-not (Test-Path -LiteralPath $LogDirectory)) {
@@ -62,7 +62,7 @@ foreach ($File in $Files) {
             -Destination $Destination `
             -ErrorAction Stop
 
-        Write-Log "SUCCESS: Moved $($File.Name) to CompleteFTP ur_out."
+        Write-Log "SUCCESS: Moved $($File.Name) to CompleteFTP ur_final_rpt."
 
     }
     catch {

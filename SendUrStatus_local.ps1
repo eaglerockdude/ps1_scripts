@@ -4,8 +4,8 @@
 # CompleteFTP server destination: C:\FTPRoot\medx_ur\ur_status_rpt
 
 $Source      = "\\review-dc1\MSOfficeFiles\Allstate_ur_status_out_tst"
-$Destination = "C:\FTPRoot\medx_ur\ur_status_rpt"
-$LogDirectory = "C:\Logs\medx_ur\"
+$Destination = "C:\Users\kmcfadden\projects\allstate\ur_status_rpt"
+$LogDirectory = "C:\Users\kmcfadden\projects\allstate\urlog"
 $LogFile     = Join-Path $LogDirectory "SendUrStatus.log"
 
 if (-not (Test-Path -LiteralPath $LogDirectory)) {
