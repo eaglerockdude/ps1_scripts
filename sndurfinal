@@ -1,0 +1,74 @@
+```powershell
+# sndurfinal.ps1
+# send ur final reports from O drive to the completeftp server to be sent to medx
+# Moves PDF files from the internal Windows file share O:drive
+# ur O: drive folder is Allstate_ur_out
+# CompleteFTP server destination folders:
+#   FTPRoot\medx_ur\ur_final_rpt (live)
+#   C:\Users\kmcfadden\projects\allstate\ur_final_rpt
+
+$Source      = "\\review-dc1\MSOfficeFiles\Allstate_ur_final_out_tst
+$Destination = "C:\Users\kmcfadden\projects\allstate\ur_final_rpt"
+$LogFile     = "C:\Users\kmcfadden\projects\allstate\urlog.log" 
+
+
+# ------------------------------------------------------------
+# Logging function
+# ------------------------------------------------------------
+function Write-Log {
+
+    param (
+        [string]$Message
+    )
+
+    $TimeStamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
+    $LogEntry = "$TimeStamp  $Message"
+
+    # Display on screen
+    Write-Host $LogEntry
+
+    # Write to log file
+    Add-Content -LiteralPath $LogFile -Value $LogEntry
+}
+
+
+Write-Log "sndurfinal started."
+
+
+# Find all PDF files
+$Files = Get-ChildItem -LiteralPath $Source -Filter "*.pdf" -File
+
+
+if ($Files.Count -eq 0) {
+
+    Write-Log "No ur PDF files found."
+
+}
+
+
+foreach ($File in $Files) {
+
+    try {
+
+        Write-Log "Moving $($File.Name)"
+
+        Move-Item `
+            -LiteralPath $File.FullName `
+            -Destination $Destination `
+            -ErrorAction Stop
+
+        Write-Log "SUCCESS: Moved $($File.Name) to CompleteFTP ur_final_rpt."
+
+    }
+    catch {
+
+        Write-Log "ERROR moving $($File.Name): $($_.Exception.Message)"
+
+    }
+
+}
+
+
+Write-Log "sndurfinal finished."
+```
